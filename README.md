@@ -1,2 +1,3 @@
 # chrome-extension-bookmark
-浏览器书签插件
+
+书签同步工具，支持 chrome 和 firefox
