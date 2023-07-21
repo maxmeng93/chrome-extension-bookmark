@@ -27,3 +27,36 @@ chrome.bookmarks.onCreated.addListener((id, bookmark) => {
 
 // 书签API使用示例
 // https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/api-samples/bookmarks/popup.js
+
+chrome.bookmarks.onCreated.addListener((id, bookmark) => {
+  console.log('A bookmark was created:', id, bookmark);
+});
+
+chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
+  console.log('A bookmark was removed:', id, removeInfo);
+});
+
+chrome.bookmarks.onChanged.addListener((id, changeInfo) => {
+  console.log('A bookmark was changed:', id, changeInfo);
+});
+
+chrome.bookmarks.onMoved.addListener((id, moveInfo) => {
+  console.log('A bookmark was moved:', id, moveInfo);
+});
+
+// 
+
+// 根据标题查询书签
+chrome.bookmarks.search('My Bookmark', (results) => {
+  console.log(results);
+});
+
+// 根据URL查询书签
+chrome.bookmarks.search('https://example.com', (results) => {
+  console.log(results);
+});
+
+// 使用查询对象查询书签
+chrome.bookmarks.search({ title: 'My Bookmark', url: 'https://example.com' }, (results) => {
+  console.log(results);
+});
