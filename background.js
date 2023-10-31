@@ -1,62 +1,56 @@
-import "./log.js"
-
-// 监听安装事件
-chrome.runtime.onInstalled.addListener(() => {
-  console.log('扩展程序已安装');
-
-  // 插件上显示徽章
-  chrome.action.setBadgeText({
-    text: "ON",
-  });
-});
-
-// 监听来自 content script 的消息
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'getBookmarks') {
-    chrome.bookmarks.getTree((bookmarkTreeNodes) => {
-      sendResponse(bookmarkTreeNodes);
-    });
-    return true;
-  }
-});
-
-// 您还可以监听书签的更改，并相应地更新同步存储
-chrome.bookmarks.onCreated.addListener((id, bookmark) => {
-  console.log('onCreated', id, bookmark)
-});
-
 // 书签API使用示例
 // https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/api-samples/bookmarks/popup.js
 
-chrome.bookmarks.onCreated.addListener((id, bookmark) => {
-  console.log('A bookmark was created:', id, bookmark);
+// 当新书签创建时触发
+chrome.bookmarks.onCreated.addListener(function(id, bookmark) {
+  syncToServer('onCreated', bookmark)
 });
 
-chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
-  console.log('A bookmark was removed:', id, removeInfo);
+// 当书签被删除时触发
+chrome.bookmarks.onRemoved.addListener(function(id, removeInfo) {
+  syncToServer('onRemoved', removeInfo)
 });
 
-chrome.bookmarks.onChanged.addListener((id, changeInfo) => {
-  console.log('A bookmark was changed:', id, changeInfo);
+// 当书签被修改时触发
+chrome.bookmarks.onChanged.addListener(function(id, changeInfo) {
+  syncToServer('onChanged', changeInfo)
 });
 
+// 当书签被移动时触发
 chrome.bookmarks.onMoved.addListener((id, moveInfo) => {
-  console.log('A bookmark was moved:', id, moveInfo);
+  syncToServer('onMoved', moveInfo)
 });
 
-// 
+function syncToServer(str, info) {
+  // 同步到服务器
+  console.log('str', str);
 
-// 根据标题查询书签
-chrome.bookmarks.search('My Bookmark', (results) => {
-  console.log(results);
-});
+  fetch('http://localhost:3000/api/bookmark/log', {
+    method: 'POST',
+    body: JSON.stringify({str, ...info}),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
 
-// 根据URL查询书签
-chrome.bookmarks.search('https://example.com', (results) => {
-  console.log(results);
-});
 
-// 使用查询对象查询书签
-chrome.bookmarks.search({ title: 'My Bookmark', url: 'https://example.com' }, (results) => {
-  console.log(results);
-});
+// 监听安装事件
+// chrome.runtime.onInstalled.addListener(() => {
+//   console.log('扩展程序已安装');
+
+//   // 插件上显示徽章
+//   chrome.action.setBadgeText({
+//     text: "ON",
+//   });
+// });
+
+// 监听来自 content script 的消息
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+//   if (request.action === 'getBookmarks') {
+//     chrome.bookmarks.getTree((bookmarkTreeNodes) => {
+//       sendResponse(bookmarkTreeNodes);
+//     });
+//     return true;
+//   }
+// });
